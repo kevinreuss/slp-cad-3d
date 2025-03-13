@@ -47,12 +47,45 @@
       #file-input {
         display: none;
       }
+      .button-group {
+        display: flex;
+        gap: 1rem;
+      }
+      .template-btn {
+        padding: 0.5rem 1.5rem;
+        background: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 500;
+        color: #6e8efb;
+        transition: all 0.3s ease;
+      }
+      .template-btn:hover {
+        background: #f0f0f0;
+        transform: translateY(-2px);
+      }
+      .template-btn.active {
+        background: #6e8efb;
+        color: white;
+      }
     </style>
   </head>
   <body>
     <div id="header">
       <h1>SLP-CAD-3D</h1>
-      <button id="import-btn">Import JSON</button>
+      <div class="button-group">
+        <button class="template-btn active" data-template="sat_anlage">
+          SAT-Anlage
+        </button>
+        <button class="template-btn" data-template="pv_anlage">
+          PV-Anlage
+        </button>
+        <button class="template-btn" data-template="hauptleitungen">
+          Hauptleitungen
+        </button>
+        <button id="import-btn">Import JSON</button>
+      </div>
     </div>
     <div id="canvas-container"></div>
     <input type="file" id="file-input" accept=".json" />
@@ -62,6 +95,9 @@
     <script src="https://unpkg.com/three@0.134.0/examples/js/loaders/SVGLoader.js"></script>
     <script src="shapes/pv.js"></script>
     <script src="shapes/slp.js"></script>
+    <script src="templates/sat_anlage.js"></script>
+    <script src="templates/pv_anlage.js"></script>
+    <script src="templates/hauptleitungen.js"></script>
     <script>
       // Three.js Setup
       const scene = new THREE.Scene();
@@ -100,6 +136,39 @@
           };
           reader.readAsText(file);
         }
+      });
+
+      // Template data
+      const templates = {
+        sat_anlage: {
+          /* Inhalt von sat_anlage.json */
+        },
+        pv_anlage: {
+          /* Inhalt von pv_anlage.json */
+        },
+        hauptleitungen: {
+          /* Inhalt von hauptleitungen.json */
+        },
+      };
+
+      // Template button handling
+      document.querySelectorAll(".template-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          // Update active state
+          document
+            .querySelectorAll(".template-btn")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          // Load template
+          const templateName = btn.dataset.template;
+          processJSON(templates[templateName]);
+        });
+      });
+
+      // Load initial template
+      window.addEventListener("DOMContentLoaded", () => {
+        processJSON(templates.sat_anlage);
       });
 
       function processJSON(data) {
