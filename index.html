@@ -285,6 +285,7 @@
         // Create shapes
         if (data.shapes) {
           const svgLoader = new THREE.SVGLoader();
+          const SVG_CELL_SIZE = 15; // Size of one cell in the SVG
 
           data.shapes.forEach((shape) => {
             const [folder, shapeName] = shape.shapeType.split("/");
@@ -298,6 +299,18 @@
             const svgPaths = svgLoader.parse(svgString);
             const group = new THREE.Group();
 
+            // Extract SVG dimensions from the string
+            const svgWidth = parseFloat(
+              svgString.match(/width="([^"]+)"/)?.[1] || "0"
+            );
+            const svgHeight = parseFloat(
+              svgString.match(/height="([^"]+)"/)?.[1] || "0"
+            );
+
+            // Calculate how many grid cells the SVG represents
+            const cellsWide = svgWidth / SVG_CELL_SIZE;
+            const cellsHigh = svgHeight / SVG_CELL_SIZE;
+
             svgPaths.paths.forEach((path) => {
               const material = new THREE.MeshBasicMaterial({
                 color: path.color || 0x808080,
@@ -309,22 +322,26 @@
 
               shapes.forEach((shape) => {
                 const geometry = new THREE.ExtrudeGeometry(shape, {
-                  depth: 1,
+                  depth: 0.1,
                   bevelEnabled: false,
                 });
-
                 const mesh = new THREE.Mesh(geometry, material);
                 group.add(mesh);
               });
             });
 
-            // Position the shape and rotate it to lay flat
+            // Scale to match the Three.js grid (1 unit = 1 cell)
+            const scale = 1 / SVG_CELL_SIZE;
+            group.scale.set(scale, scale, 1);
+
+            // Position the shape and apply correct rotation
             group.position.set(
               gridWidth - shape.position.column,
               0.1,
               shape.position.row
             );
-            group.rotation.x = -Math.PI / 2; // Rotiere um 90 Grad
+            group.rotation.x = -Math.PI / 2; // Lay flat
+            group.rotation.z = Math.PI / 2; // Rotate 90 degrees clockwise
 
             scene.add(group);
           });
