@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SLP-CAD-3D</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Arial", sans-serif;
+        background: #f5f7fa;
+        color: #333;
+      }
+      #header {
+        background: linear-gradient(135deg, #6e8efb, #a777e3);
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      #header h1 {
+        margin: 0;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+      #import-btn {
+        padding: 0.5rem 1.5rem;
+        background: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 500;
+        color: #6e8efb;
+        transition: all 0.3s ease;
+      }
+      #import-btn:hover {
+        background: #f0f0f0;
+        transform: translateY(-2px);
+      }
+      #canvas-container {
+        width: 100%;
+        height: calc(100vh - 64px);
+      }
+      canvas {
+        display: block;
+      }
+      #file-input {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header">
+      <h1>SLP-CAD-3D</h1>
+      <button id="import-btn">Import JSON</button>
+    </div>
+    <div id="canvas-container"></div>
+    <input type="file" id="file-input" accept=".json" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+    <script>
+      // Three.js Setup
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight - 64);
+      document
+        .getElementById("canvas-container")
+        .appendChild(renderer.domElement);
+
+      // Orbit Controls
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+
+      // File Input Setup
+      const fileInput = document.getElementById("file-input");
+      const importBtn = document.getElementById("import-btn");
+
+      importBtn.addEventListener("click", () => {
+        fileInput.click();
+      });
+
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const jsonData = JSON.parse(event.target.result);
+            processJSON(jsonData);
+          };
+          reader.readAsText(file);
+        }
+      });
+
+      function processJSON(data) {
+        // Clear previous scene
+        while (scene.children.length > 0) {
+          scene.remove(scene.children[0]);
+        }
+
+        // Calculate grid size
+        let minRow = Infinity,
+          maxRow = -Infinity;
+        let minCol = Infinity,
+          maxCol = -Infinity;
+
+        data.wires.forEach((wire) => {
+          wire.wireSegments.forEach((segment) => {
+            minRow = Math.min(
+              minRow,
+              segment.startPosition.row,
+              segment.endPosition.row
+            );
+            maxRow = Math.max(
+              maxRow,
+              segment.startPosition.row,
+              segment.endPosition.row
+            );
+            minCol = Math.min(
+              minCol,
+              segment.startPosition.column,
+              segment.endPosition.column
+            );
+            maxCol = Math.max(
+              maxCol,
+              segment.startPosition.column,
+              segment.endPosition.column
+            );
+          });
+        });
+
+        const gridWidth = maxCol - minCol + 1;
+        const gridHeight = maxRow - minRow + 1;
+
+        // Create ground plane
+        const planeGeometry = new THREE.PlaneGeometry(gridWidth, gridHeight);
+        const planeMaterial = new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          side: THREE.DoubleSide,
+        });
+        const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.rotation.x = Math.PI / 2;
+        plane.position.set((minCol + maxCol) / 2, 0, (minRow + maxRow) / 2);
+        scene.add(plane);
+
+        // Create grid lines
+        const gridMaterial = new THREE.LineBasicMaterial({ color: 0xcccccc });
+        const gridGeometry = new THREE.BufferGeometry();
+        const gridVertices = [];
+
+        for (let i = 0; i <= gridWidth; i++) {
+          gridVertices.push(minCol + i, 0, minRow);
+          gridVertices.push(minCol + i, 0, maxRow);
+        }
+        for (let i = 0; i <= gridHeight; i++) {
+          gridVertices.push(minCol, 0, minRow + i);
+          gridVertices.push(maxCol, 0, minRow + i);
+        }
+
+        gridGeometry.setAttribute(
+          "position",
+          new THREE.Float32BufferAttribute(gridVertices, 3)
+        );
+        const gridLines = new THREE.LineSegments(gridGeometry, gridMaterial);
+        scene.add(gridLines);
+
+        // Create wires
+        data.wires.forEach((wire) => {
+          const thickness = 0.2; //wire.style.lineThickness === "thick" ? 0.2 : 0.1;
+          const color = 0x000000;
+          // parseInt(wire.style.colorCode.replace("#", ""), 16) ||
+          // { black: 0x000000, green: 0x00ff00, white: 0xffffff }[
+          //   wire.style.colorCode
+          // ] ||
+          // 0x000000;
+
+          wire.wireSegments.forEach((segment) => {
+            const start = new THREE.Vector3(
+              segment.startPosition.column,
+              thickness / 2,
+              segment.startPosition.row
+            );
+            const end = new THREE.Vector3(
+              segment.endPosition.column,
+              thickness / 2,
+              segment.endPosition.row
+            );
+
+            const length = start.distanceTo(end);
+            const geometry = new THREE.CylinderGeometry(
+              thickness / 2,
+              thickness / 2,
+              length,
+              32
+            );
+            const material = new THREE.MeshBasicMaterial({ color: color });
+            const cylinder = new THREE.Mesh(geometry, material);
+
+            // Position and rotate cylinder
+            const midpoint = new THREE.Vector3()
+              .addVectors(start, end)
+              .multiplyScalar(0.5);
+            cylinder.position.copy(midpoint);
+
+            const direction = new THREE.Vector3()
+              .subVectors(end, start)
+              .normalize();
+            const quaternion = new THREE.Quaternion().setFromUnitVectors(
+              new THREE.Vector3(0, 1, 0),
+              direction
+            );
+            cylinder.quaternion.copy(quaternion);
+
+            scene.add(cylinder);
+          });
+        });
+
+        // Adjust camera
+        camera.position.set(
+          (minCol + maxCol) / 2,
+          Math.max(gridWidth, gridHeight),
+          (minRow + maxRow) / 2
+        );
+        camera.lookAt((minCol + maxCol) / 2, 0, (minRow + maxRow) / 2);
+        controls.target.set((minCol + maxCol) / 2, 0, (minRow + maxRow) / 2);
+        controls.update();
+      }
+
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Handle window resize
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / (window.innerHeight - 64);
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight - 64);
+      });
+    </script>
+  </body>
+</html>
