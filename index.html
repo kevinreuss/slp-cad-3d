@@ -59,6 +59,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://unpkg.com/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://unpkg.com/three@0.134.0/examples/js/loaders/SVGLoader.js"></script>
+    <script src="shapes/pv.js"></script>
     <script>
       // Three.js Setup
       const scene = new THREE.Scene();
@@ -277,6 +279,54 @@
             for (let i = 0; i < 4; i++) {
               createWireSegment(corners[i], corners[(i + 1) % 4], style);
             }
+          });
+        }
+
+        // Create shapes
+        if (data.shapes) {
+          const svgLoader = new THREE.SVGLoader();
+
+          data.shapes.forEach((shape) => {
+            const [folder, shapeName] = shape.shapeType.split("/");
+            const svgString = window.shapeLibrary[folder]?.[shapeName];
+
+            if (!svgString) {
+              console.error(`SVG not found for ${shape.shapeType}`);
+              return;
+            }
+
+            const svgPaths = svgLoader.parse(svgString);
+            const group = new THREE.Group();
+
+            svgPaths.paths.forEach((path) => {
+              const material = new THREE.MeshBasicMaterial({
+                color: path.color || 0x808080,
+                side: THREE.DoubleSide,
+                depthWrite: true,
+              });
+
+              const shapes = THREE.SVGLoader.createShapes(path);
+
+              shapes.forEach((shape) => {
+                const geometry = new THREE.ExtrudeGeometry(shape, {
+                  depth: 1,
+                  bevelEnabled: false,
+                });
+
+                const mesh = new THREE.Mesh(geometry, material);
+                group.add(mesh);
+              });
+            });
+
+            // Position the shape and rotate it to lay flat
+            group.position.set(
+              gridWidth - shape.position.column,
+              0.1,
+              shape.position.row
+            );
+            group.rotation.x = -Math.PI / 2; // Rotiere um 90 Grad
+
+            scene.add(group);
           });
         }
 
