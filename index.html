@@ -105,39 +105,9 @@
           scene.remove(scene.children[0]);
         }
 
-        // Calculate grid size
-        let minRow = Infinity,
-          maxRow = -Infinity;
-        let minCol = Infinity,
-          maxCol = -Infinity;
-
-        data.wires.forEach((wire) => {
-          wire.wireSegments.forEach((segment) => {
-            minRow = Math.min(
-              minRow,
-              segment.startPosition.row,
-              segment.endPosition.row
-            );
-            maxRow = Math.max(
-              maxRow,
-              segment.startPosition.row,
-              segment.endPosition.row
-            );
-            minCol = Math.min(
-              minCol,
-              segment.startPosition.column,
-              segment.endPosition.column
-            );
-            maxCol = Math.max(
-              maxCol,
-              segment.startPosition.column,
-              segment.endPosition.column
-            );
-          });
-        });
-
-        const gridWidth = maxCol - minCol + 1;
-        const gridHeight = maxRow - minRow + 1;
+        // Fixed grid size
+        const gridWidth = 37;
+        const gridHeight = 64;
 
         // Create ground plane
         const planeGeometry = new THREE.PlaneGeometry(gridWidth, gridHeight);
@@ -147,7 +117,7 @@
         });
         const plane = new THREE.Mesh(planeGeometry, planeMaterial);
         plane.rotation.x = Math.PI / 2;
-        plane.position.set((minCol + maxCol) / 2, 0, (minRow + maxRow) / 2);
+        plane.position.set(gridWidth / 2, 0, gridHeight / 2);
         scene.add(plane);
 
         // Create grid lines
@@ -156,12 +126,12 @@
         const gridVertices = [];
 
         for (let i = 0; i <= gridWidth; i++) {
-          gridVertices.push(minCol + i, 0, minRow);
-          gridVertices.push(minCol + i, 0, maxRow);
+          gridVertices.push(i, 0, 0);
+          gridVertices.push(i, 0, gridHeight);
         }
         for (let i = 0; i <= gridHeight; i++) {
-          gridVertices.push(minCol, 0, minRow + i);
-          gridVertices.push(maxCol, 0, minRow + i);
+          gridVertices.push(0, 0, i);
+          gridVertices.push(gridWidth, 0, i);
         }
 
         gridGeometry.setAttribute(
@@ -171,15 +141,10 @@
         const gridLines = new THREE.LineSegments(gridGeometry, gridMaterial);
         scene.add(gridLines);
 
-        // Create wires
+        // Create wires (using absolute positions now)
         data.wires.forEach((wire) => {
-          const thickness = 0.2; //wire.style.lineThickness === "thick" ? 0.2 : 0.1;
+          const thickness = 0.2;
           const color = 0x000000;
-          // parseInt(wire.style.colorCode.replace("#", ""), 16) ||
-          // { black: 0x000000, green: 0x00ff00, white: 0xffffff }[
-          //   wire.style.colorCode
-          // ] ||
-          // 0x000000;
 
           wire.wireSegments.forEach((segment) => {
             const start = new THREE.Vector3(
@@ -222,14 +187,14 @@
           });
         });
 
-        // Adjust camera
+        // Adjust camera to fixed grid
         camera.position.set(
-          (minCol + maxCol) / 2,
+          gridWidth / 2,
           Math.max(gridWidth, gridHeight),
-          (minRow + maxRow) / 2
+          gridHeight / 2
         );
-        camera.lookAt((minCol + maxCol) / 2, 0, (minRow + maxRow) / 2);
-        controls.target.set((minCol + maxCol) / 2, 0, (minRow + maxRow) / 2);
+        camera.lookAt(gridWidth / 2, 0, gridHeight / 2);
+        controls.target.set(gridWidth / 2, 0, gridHeight / 2);
         controls.update();
       }
 
