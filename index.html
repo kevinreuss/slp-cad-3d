@@ -196,12 +196,12 @@
           data.wires.forEach((wire) => {
             wire.wireSegments.forEach((segment) => {
               const start = new THREE.Vector3(
-                segment.startPosition.column,
+                gridWidth - segment.startPosition.column,
                 lineThicknessMap[wire.style.lineThickness],
                 segment.startPosition.row
               );
               const end = new THREE.Vector3(
-                segment.endPosition.column,
+                gridWidth - segment.endPosition.column,
                 lineThicknessMap[wire.style.lineThickness],
                 segment.endPosition.row
               );
@@ -214,28 +214,28 @@
         if (data.rectangles) {
           data.rectangles.forEach((rect) => {
             const { position, size, style } = rect;
-            // Create four corners
+            // Create four corners with mirrored X coordinates
             const corners = [
               new THREE.Vector3(
-                position.column,
+                gridWidth - position.column,
                 lineThicknessMap[style.lineThickness],
                 position.row
-              ), // top-left
+              ),
               new THREE.Vector3(
-                position.column + size.columns,
+                gridWidth - (position.column + size.columns),
                 lineThicknessMap[style.lineThickness],
                 position.row
-              ), // top-right
+              ),
               new THREE.Vector3(
-                position.column + size.columns,
+                gridWidth - (position.column + size.columns),
                 lineThicknessMap[style.lineThickness],
                 position.row + size.rows
-              ), // bottom-right
+              ),
               new THREE.Vector3(
-                position.column,
+                gridWidth - position.column,
                 lineThicknessMap[style.lineThickness],
                 position.row + size.rows
-              ), // bottom-left
+              ),
             ];
 
             // Create four sides
@@ -249,28 +249,28 @@
         if (data.frames) {
           data.frames.forEach((frame) => {
             const { position, size, style } = frame;
-            // Create four corners
+            // Create four corners with mirrored X coordinates
             const corners = [
               new THREE.Vector3(
-                position.column,
+                gridWidth - position.column,
                 lineThicknessMap[style.lineThickness],
                 position.row
-              ), // top-left
+              ),
               new THREE.Vector3(
-                position.column + size.columns,
+                gridWidth - (position.column + size.columns),
                 lineThicknessMap[style.lineThickness],
                 position.row
-              ), // top-right
+              ),
               new THREE.Vector3(
-                position.column + size.columns,
+                gridWidth - (position.column + size.columns),
                 lineThicknessMap[style.lineThickness],
                 position.row + size.rows
-              ), // bottom-right
+              ),
               new THREE.Vector3(
-                position.column,
+                gridWidth - position.column,
                 lineThicknessMap[style.lineThickness],
                 position.row + size.rows
-              ), // bottom-left
+              ),
             ];
 
             // Create four sides
