@@ -100,6 +100,23 @@
       });
 
       function processJSON(data) {
+        const lineThicknessMap = {
+          thin: 0.05,
+          medium: 0.1,
+          thick: 0.2,
+        };
+        const colorMap = {
+          black: 0x000000,
+          blue: 0x1804c0,
+          green: 0x1f4d1a,
+          brown: 0x8d563d,
+          yellow: 0xaf8700,
+          orange: 0xe37c02,
+          red: 0xff0000,
+          violet: 0xb23395,
+          white: 0x787878,
+        };
+
         // Clear previous scene
         while (scene.children.length > 0) {
           scene.remove(scene.children[0]);
@@ -141,56 +158,127 @@
         const gridLines = new THREE.LineSegments(gridGeometry, gridMaterial);
         scene.add(gridLines);
 
-        // Create wires (using absolute positions now)
-        data.wires.forEach((wire) => {
-          const lineThicknessMap = {
-            thin: 0.05,
-            medium: 0.1,
-            thick: 0.2,
-          };
-          const thickness = lineThicknessMap[wire.style.lineThickness];
-          const color = 0x000000;
+        // Helper function to create wire segments
+        function createWireSegment(start, end, style) {
+          const thickness = lineThicknessMap[style.lineThickness];
+          const color = colorMap[style.colorCode];
 
-          wire.wireSegments.forEach((segment) => {
-            const start = new THREE.Vector3(
-              segment.startPosition.column,
-              thickness / 2,
-              segment.startPosition.row
-            );
-            const end = new THREE.Vector3(
-              segment.endPosition.column,
-              thickness / 2,
-              segment.endPosition.row
-            );
+          const length = start.distanceTo(end);
+          const geometry = new THREE.CylinderGeometry(
+            thickness / 2,
+            thickness / 2,
+            length,
+            32
+          );
+          const material = new THREE.MeshBasicMaterial({ color: color });
+          const cylinder = new THREE.Mesh(geometry, material);
 
-            const length = start.distanceTo(end);
-            const geometry = new THREE.CylinderGeometry(
-              thickness / 2,
-              thickness / 2,
-              length,
-              32
-            );
-            const material = new THREE.MeshBasicMaterial({ color: color });
-            const cylinder = new THREE.Mesh(geometry, material);
+          // Position and rotate cylinder
+          const midpoint = new THREE.Vector3()
+            .addVectors(start, end)
+            .multiplyScalar(0.5);
+          cylinder.position.copy(midpoint);
 
-            // Position and rotate cylinder
-            const midpoint = new THREE.Vector3()
-              .addVectors(start, end)
-              .multiplyScalar(0.5);
-            cylinder.position.copy(midpoint);
+          const direction = new THREE.Vector3()
+            .subVectors(end, start)
+            .normalize();
+          const quaternion = new THREE.Quaternion().setFromUnitVectors(
+            new THREE.Vector3(0, 1, 0),
+            direction
+          );
+          cylinder.quaternion.copy(quaternion);
 
-            const direction = new THREE.Vector3()
-              .subVectors(end, start)
-              .normalize();
-            const quaternion = new THREE.Quaternion().setFromUnitVectors(
-              new THREE.Vector3(0, 1, 0),
-              direction
-            );
-            cylinder.quaternion.copy(quaternion);
+          scene.add(cylinder);
+        }
 
-            scene.add(cylinder);
+        // Create wires
+        if (data.wires) {
+          data.wires.forEach((wire) => {
+            wire.wireSegments.forEach((segment) => {
+              const start = new THREE.Vector3(
+                segment.startPosition.column,
+                lineThicknessMap[wire.style.lineThickness],
+                segment.startPosition.row
+              );
+              const end = new THREE.Vector3(
+                segment.endPosition.column,
+                lineThicknessMap[wire.style.lineThickness],
+                segment.endPosition.row
+              );
+              createWireSegment(start, end, wire.style);
+            });
           });
-        });
+        }
+
+        // Create rectangles
+        if (data.rectangles) {
+          data.rectangles.forEach((rect) => {
+            const { position, size, style } = rect;
+            // Create four corners
+            const corners = [
+              new THREE.Vector3(
+                position.column,
+                lineThicknessMap[style.lineThickness],
+                position.row
+              ), // top-left
+              new THREE.Vector3(
+                position.column + size.columns,
+                lineThicknessMap[style.lineThickness],
+                position.row
+              ), // top-right
+              new THREE.Vector3(
+                position.column + size.columns,
+                lineThicknessMap[style.lineThickness],
+                position.row + size.rows
+              ), // bottom-right
+              new THREE.Vector3(
+                position.column,
+                lineThicknessMap[style.lineThickness],
+                position.row + size.rows
+              ), // bottom-left
+            ];
+
+            // Create four sides
+            for (let i = 0; i < 4; i++) {
+              createWireSegment(corners[i], corners[(i + 1) % 4], style);
+            }
+          });
+        }
+
+        // Create frames
+        if (data.frames) {
+          data.frames.forEach((frame) => {
+            const { position, size, style } = frame;
+            // Create four corners
+            const corners = [
+              new THREE.Vector3(
+                position.column,
+                lineThicknessMap[style.lineThickness],
+                position.row
+              ), // top-left
+              new THREE.Vector3(
+                position.column + size.columns,
+                lineThicknessMap[style.lineThickness],
+                position.row
+              ), // top-right
+              new THREE.Vector3(
+                position.column + size.columns,
+                lineThicknessMap[style.lineThickness],
+                position.row + size.rows
+              ), // bottom-right
+              new THREE.Vector3(
+                position.column,
+                lineThicknessMap[style.lineThickness],
+                position.row + size.rows
+              ), // bottom-left
+            ];
+
+            // Create four sides
+            for (let i = 0; i < 4; i++) {
+              createWireSegment(corners[i], corners[(i + 1) % 4], style);
+            }
+          });
+        }
 
         // Adjust camera to fixed grid
         camera.position.set(
