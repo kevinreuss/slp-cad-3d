@@ -1,0 +1,27 @@
+<svg width="20.342" height="25.073" id="svg4136" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <defs id="defs4138">
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Mend" style="overflow:visible">
+            <path id="path4750" d="m0 0 5-5-17.5 5L5 5Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-.4 0 0 -.4 -4 0)"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow2Mend" style="overflow:visible">
+            <path id="path4768" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.625;stroke-linejoin:round;stroke-opacity:1" d="M8.719 4.034-2.207.016 8.719-4.002c-1.746 2.372-1.736 5.618 0 8.036z" transform="scale(-.6)"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Send" style="overflow:visible">
+            <path id="path4756" d="m0 0 5-5-17.5 5L5 5Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-.2 0 0 -.2 -1.2 0)"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lstart" style="overflow:visible">
+            <path id="path4741" d="m0 0 5-5-17.5 5L5 5Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(.8 0 0 .8 10 0)"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lend" style="overflow:visible">
+            <path id="path4744" d="m0 0 5-5-17.5 5L5 5Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-.8 0 0 -.8 -10 0)"/>
+        </marker>
+    </defs>
+    <g id="layer1">
+        <g id="layer">
+            <path id="path4719" d="M20 25.073v-1.181" style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"/>
+            <path style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" d="M20.052 24.04 14.957 5.224" id="path4727"/>
+            <path style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" d="M20 8.312V0" id="path4711-9"/>
+            <path style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" d="M15 8.011h5" id="path4711-7"/>
+        </g>
+    </g>
+</svg>
