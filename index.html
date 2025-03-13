@@ -78,11 +78,11 @@
         <button class="template-btn active" data-template="sat_anlage">
           SAT-Anlage
         </button>
-        <button class="template-btn" data-template="pv_anlage">
-          PV-Anlage
-        </button>
         <button class="template-btn" data-template="hauptleitungen">
           Hauptleitungen
+        </button>
+        <button class="template-btn" data-template="pv_anlage">
+          PV-Anlage
         </button>
         <button id="import-btn">Import JSON</button>
       </div>
@@ -138,19 +138,6 @@
         }
       });
 
-      // Template data
-      const templates = {
-        sat_anlage: {
-          /* Inhalt von sat_anlage.json */
-        },
-        pv_anlage: {
-          /* Inhalt von pv_anlage.json */
-        },
-        hauptleitungen: {
-          /* Inhalt von hauptleitungen.json */
-        },
-      };
-
       // Template button handling
       document.querySelectorAll(".template-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -162,13 +149,18 @@
 
           // Load template
           const templateName = btn.dataset.template;
-          processJSON(templates[templateName]);
+          processJSON(window.templates[templateName]);
         });
       });
 
       // Load initial template
       window.addEventListener("DOMContentLoaded", () => {
-        processJSON(templates.sat_anlage);
+        console.log("Available templates:", window.templates);
+        if (window.templates && window.templates.sat_anlage) {
+          processJSON(window.templates.sat_anlage);
+        } else {
+          console.error("Template sat_anlage not found!");
+        }
       });
 
       function processJSON(data) {
