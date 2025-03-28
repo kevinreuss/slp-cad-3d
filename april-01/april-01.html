@@ -28,7 +28,7 @@
 
       // Setze initiale Kameraposition für bessere Sicht
       // const zoom = 3;
-      camera.position.set(0, 2, 0);
+      camera.position.set(0, 1.25, 0);
       // camera.lookAt(gridWidth / 2, 0, gridHeight / 2);
       // camera.position.set(0, 0.7, 1.5); // Neue Position:
       // x = 0 (mittig)
@@ -46,7 +46,7 @@
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
       controls.minDistance = 0.1; // Minimaler Zoom
-      controls.maxDistance = 5; // Maximaler Zoom
+      controls.maxDistance = 3; // Maximaler Zoom
 
       // Load texture and create plane
       const textureLoader = new THREE.TextureLoader();
