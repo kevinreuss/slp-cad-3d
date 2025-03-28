@@ -27,6 +27,7 @@
       );
       const renderer = new THREE.WebGLRenderer();
       renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0xffffff);
       document.body.appendChild(renderer.domElement);
 
       // Orbit Controls
@@ -47,7 +48,7 @@
           });
           const plane = new THREE.Mesh(planeGeometry, planeMaterial);
           plane.rotation.x = -Math.PI / 2;
-          plane.rotation.z = Math.PI;
+          plane.rotation.z = 0;
           scene.add(plane);
 
           // Adjust camera position based on image size
