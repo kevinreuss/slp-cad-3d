@@ -25,6 +25,12 @@
         0.1,
         1000
       );
+
+      // Setze initiale Kameraposition schräg von oben
+      const zoom = 3;
+      camera.position.set(2 / zoom, 3 / zoom, 2 / zoom);
+      camera.lookAt(0, 0, 0);
+
       const renderer = new THREE.WebGLRenderer();
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setClearColor(0xffffff);
@@ -51,9 +57,15 @@
           plane.rotation.z = 0;
           scene.add(plane);
 
-          // Adjust camera position based on image size
-          camera.position.set(0, 2, 0);
-          camera.lookAt(0, 0, 0);
+          // Langsame Rotation der Plane
+          function rotatePlane() {
+            const rotationSpeed = 0.004;
+            plane.rotation.z += rotationSpeed;
+            requestAnimationFrame(rotatePlane);
+          }
+          rotatePlane();
+
+          // Kameraposition muss hier nicht mehr gesetzt werden
           controls.update();
         }
       );
