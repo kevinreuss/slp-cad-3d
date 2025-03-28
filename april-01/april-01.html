@@ -45,8 +45,8 @@
       const controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
-      controls.minDistance = 1; // Minimaler Zoom
-      controls.maxDistance = 3; // Maximaler Zoom
+      controls.minDistance = 0.1; // Minimaler Zoom
+      controls.maxDistance = 5; // Maximaler Zoom
 
       // Load texture and create plane
       const textureLoader = new THREE.TextureLoader();
@@ -65,12 +65,21 @@
           scene.add(plane);
 
           // Rotation der Plane um die Y-Achse
+          let isAutoRotating = true; // Variable für den Rotationsstatus
+
           function rotatePlane() {
-            const rotationSpeed = 0.01;
-            plane.rotation.y += rotationSpeed;
+            if (isAutoRotating) {
+              const rotationSpeed = 0.01;
+              plane.rotation.y += rotationSpeed;
+            }
             requestAnimationFrame(rotatePlane);
           }
           rotatePlane();
+
+          // Event Listener für Kamerasteuerung
+          controls.addEventListener("start", function () {
+            isAutoRotating = false; // Stoppe automatische Rotation
+          });
 
           // Kameraposition muss hier nicht mehr gesetzt werden
           controls.update();
