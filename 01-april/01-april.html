@@ -26,9 +26,14 @@
         1000
       );
 
-      // Setze initiale Kameraposition schräg von oben
-      const zoom = 3;
-      camera.position.set(2 / zoom, 3 / zoom, 2 / zoom);
+      // Setze initiale Kameraposition für bessere Sicht
+      // const zoom = 3;
+      camera.position.set(0, 2, 0);
+      // camera.lookAt(gridWidth / 2, 0, gridHeight / 2);
+      // camera.position.set(0, 0.7, 1.5); // Neue Position:
+      // x = 0 (mittig)
+      // y = 0.7 (leicht erhöht)
+      // z = 1.5 (etwas weiter weg)
       camera.lookAt(0, 0, 0);
 
       const renderer = new THREE.WebGLRenderer();
@@ -40,6 +45,8 @@
       const controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
+      controls.minDistance = 1; // Minimaler Zoom
+      controls.maxDistance = 3; // Maximaler Zoom
 
       // Load texture and create plane
       const textureLoader = new THREE.TextureLoader();
@@ -57,10 +64,10 @@
           plane.rotation.z = 0;
           scene.add(plane);
 
-          // Langsame Rotation der Plane
+          // Rotation der Plane um die Y-Achse
           function rotatePlane() {
-            const rotationSpeed = 0.004;
-            plane.rotation.z += rotationSpeed;
+            const rotationSpeed = 0.01;
+            plane.rotation.y += rotationSpeed;
             requestAnimationFrame(rotatePlane);
           }
           rotatePlane();
